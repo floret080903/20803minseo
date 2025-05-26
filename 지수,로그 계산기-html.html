@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>지수와 로그 계산기</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .section {
+      display: none;
+      margin-top: 1rem;
+    }
+    input[type="number"] {
+      margin: 0.3rem 0;
+      padding: 0.5rem;
+      width: 100%;
+    }
+    button {
+      margin: 0.5rem 0.3rem 0.5rem 0;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>지수와 로그 계산기</h2>
+    <button onclick="showCalculator('exponent')">지수 계산기</button>
+    <button onclick="showCalculator('log')">로그 계산기</button>
+
+    <div id="exponent" class="section">
+      <h3>지수 계산기</h3>
+      <input type="number" step="any" id="base" placeholder="밑 (실수 가능)" />
+      <div id="exponents">
+        <input type="number" step="any" class="exponent" placeholder="지수 (유리수)" />
+      </div>
+      <button onclick="addExponent()">지수 거듭제곱 추가하기</button>
+      <button onclick="calculateExponent()">계산하기</button>
+      <button onclick="resetCalculator()">초기화</button>
+      <div id="exponentResult"></div>
+    </div>
+
+    <div id="log" class="section">
+      <h3>로그 계산기</h3>
+      <div id="logBase">
+        <input type="number" step="any" class="log-base" placeholder="밑 (유리수)" />
+      </div>
+      <div id="logValue">
+        <input type="number" step="any" class="log-value" placeholder="진수 (유리수)" />
+      </div>
+      <button onclick="addLogBase()">밑 거듭제곱 추가하기</button>
+      <button onclick="addLogValue()">진수 거듭제곱 추가하기</button>
+      <button onclick="calculateLog()">계산하기</button>
+      <button onclick="resetCalculator()">초기화</button>
+      <div id="logResult"></div>
+    </div>
+  </div>
+
+  <script>
+    function showCalculator(type) {
+      document.getElementById('exponent').style.display = 'none';
+      document.getElementById('log').style.display = 'none';
+      document.getElementById(type).style.display = 'block';
+    }
+
+    function addExponent() {
+      const container = document.getElementById('exponents');
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.step = 'any';
+      input.placeholder = '지수 (유리수)';
+      input.classList.add('exponent');
+      container.appendChild(input);
+    }
+
+    function calculateExponent() {
+      const base = parseFloat(document.getElementById('base').value);
+      const exponents = document.querySelectorAll('.exponent');
+      if (isNaN(base)) {
+        alert('밑을 올바르게 입력하세요.');
+        return;
+      }
+      let result = base;
+      exponents.forEach(exp => {
+        const value = parseFloat(exp.value);
+        if (!isNaN(value)) {
+          result = Math.pow(result, value);
+        }
+      });
+      document.getElementById('exponentResult').innerText = `결과: ${result}`;
+    }
+
+    function addLogBase() {
+      const container = document.getElementById('logBase');
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.step = 'any';
+      input.placeholder = '밑 (유리수)';
+      input.classList.add('log-base');
+      container.appendChild(input);
+    }
+
+    function addLogValue() {
+      const container = document.getElementById('logValue');
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.step = 'any';
+      input.placeholder = '진수 (유리수)';
+      input.classList.add('log-value');
+      container.appendChild(input);
+    }
+
+    function calculateLog() {
+      const baseInputs = document.querySelectorAll('.log-base');
+      const valueInputs = document.querySelectorAll('.log-value');
+
+      let baseValues = [];
+      baseInputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) baseValues.push(val);
+      });
+
+      let valueValues = [];
+      valueInputs.forEach(input => {
+        const val = parseFloat(input.value);
+        if (!isNaN(val)) valueValues.push(val);
+      });
+
+      if (baseValues.length === 0 || valueValues.length === 0) {
+        document.getElementById('logResult').innerText = '모든 값을 올바르게 입력해 주세요.';
+        return;
+      }
+
+      let base = baseValues[0];
+      for (let i = 1; i < baseValues.length; i++) {
+        base = Math.pow(base, baseValues[i]);
+      }
+
+      let value = valueValues[0];
+      for (let i = 1; i < valueValues.length; i++) {
+        value = Math.pow(value, valueValues[i]);
+      }
+
+      if (base <= 0 || base === 1 || value <= 0) {
+        document.getElementById('logResult').innerText = '밑은 양수이고 1이 아니어야 하며, 진수는 양수여야 합니다.';
+        return;
+      }
+
+      const result = Math.log(value) / Math.log(base);
+      document.getElementById('logResult').innerText = `결과: ${result}`;
+    }
+
+    function resetCalculator() {
+      document.getElementById('base').value = '';
+      document.getElementById('exponents').innerHTML = '<input type="number" step="any" class="exponent" placeholder="지수 (유리수)" />';
+      document.getElementById('exponentResult').innerText = '';
+
+      document.getElementById('logBase').innerHTML = '<input type="number" step="any" class="log-base" placeholder="밑 (유리수)" />';
+      document.getElementById('logValue').innerHTML = '<input type="number" step="any" class="log-value" placeholder="진수 (유리수)" />';
+      document.getElementById('logResult').innerText = '';
+
+      document.getElementById('exponent').style.display = 'none';
+      document.getElementById('log').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
